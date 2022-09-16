@@ -1,0 +1,54 @@
+{
+    "Resources": {
+		"SourceSG": {
+		"Type" : "AWS::EC2::SecurityGroup",
+		"Properties" : {
+			"GroupDescription" : "Allow http to client host",
+			"VpcId" : "vpc-3fb94654",
+			"SecurityGroupIngress" : [{
+				"IpProtocol" : "tcp",
+				"FromPort" : 80,
+				"ToPort" : 80,
+				"CidrIp" : "0.0.0.0/0"
+			}],
+			"SecurityGroupEgress" : [{
+				"IpProtocol" : "tcp",
+				"FromPort" : 80,
+				"ToPort" : 80,
+				"CidrIp" : "0.0.0.0/0"
+			}]
+		}
+	},
+        "CreateInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+				"AvailabilityZone" : "ap-south-1a",
+				"ImageId" : "ami-04893cdb768d0f9ee",
+				"InstanceType" : "t2.micro",
+				"SecurityGroupIds" : [ { "Ref" : "SourceSG" }],
+				"KeyName" : "vishesh"
+			}
+        },
+		"CreateVolume": {
+			"Type": "AWS::EC2::Volume",
+			"Properties": {
+				"AvailabilityZone" : "ap-south-1a",
+				"Encrypted" : false,
+				"Size" : 1,
+				"VolumeType" : "gp2"
+			}
+		},
+		"AttachVolume": {
+			"Type" : "AWS::EC2::VolumeAttachment",
+			"DependsOn" : [ 
+				"CreateInstance",
+				"CreateVolume"
+			],
+			"Properties" : {
+			  "Device" : "/dev/sdh",
+			  "InstanceId" : { "Ref" : "CreateInstance" },
+			  "VolumeId" : { "Ref" : "CreateVolume" }
+			}
+		}
+	}
+}
